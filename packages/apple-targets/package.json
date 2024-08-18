@@ -1,6 +1,6 @@
 {
   "name": "@duell10111/apple-targets",
-  "version": "0.0.6-alpha.0",
+  "version": "0.0.6-alpha.1",
   "description": "Generate Apple Targets with Expo Prebuild",
   "main": "build/index.js",
   "files": [

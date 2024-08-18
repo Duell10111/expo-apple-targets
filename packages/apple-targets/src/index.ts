@@ -6,11 +6,22 @@ import type { Config } from "./config";
 import withWidget from "./withWidget";
 import { withXcodeProjectBetaBaseMod } from "./withXcparse";
 
-export const withTargetsDir: ConfigPlugin<{
+interface AppleTargetProps {
   appleTeamId: string;
+  isTV?: boolean;
   match?: string;
   root?: string;
-}> = (config, { appleTeamId, root = "./targets", match = "*" }) => {
+}
+
+export function isTVEnabled(isTV?: boolean): boolean {
+  return process.env.EXPO_TV !== undefined || (isTV ?? false);
+}
+
+export const withTargetsDir: ConfigPlugin<AppleTargetProps> = (
+  config,
+  { appleTeamId, root = "./targets", match = "*", isTV }
+) => {
+  const tvEnabled = isTVEnabled(isTV);
   const projectRoot = config._internal!.projectRoot;
 
   const targets = globSync(`${root}/${match}/expo-target.config.@(json|js)`, {
@@ -18,6 +29,11 @@ export const withTargetsDir: ConfigPlugin<{
     cwd: projectRoot,
     absolute: true,
   });
+
+  if (tvEnabled) {
+    // Skip target modifications if TV is enabled.
+    return config;
+  }
 
   targets.forEach((configPath) => {
     config = withWidget(config, {
